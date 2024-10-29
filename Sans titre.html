@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu Mister White</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .player {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .role-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #playerInputArea, #gameArea {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jeu Mister White</h1>
+
+    <div id="playerInputArea">
+        <input type="text" id="playerName" placeholder="Nom du joueur">
+        <button onclick="addPlayer()">Ajouter joueur</button>
+        <p>Joueurs ajoutés :</p>
+        <ul id="playerList"></ul>
+        <button onclick="startGame()" id="startGameButton" style="display:none;">Démarrer la partie</button>
+    </div>
+
+    <div id="gameArea" style="display:none;">
+        <p id="turnInfo"></p>
+        <div id="playersArea"></div>
+        <button onclick="resetGame()" style="margin-top:20px;">Recommencer une partie de zéro</button>
+        <button onclick="newGame()" style="margin-top:20px;">Nouvelle partie (mêmes joueurs)</button>
+    </div>
+
+    <script>
+        let players = [];
+        const words = [
+            "Pomme", "Table", "Ordinateur", "Voiture", "Télévision", "Chat", "Chien", "Soleil", "Lune", "Arbre",
+            "Maison", "Bateau", "Train", "Montagne", "Rivière", "Feuille", "Oiseau", "Cheval", "Livre", "Clé",
+            "Gâteau", "Crayon", "Stylo", "Vélo", "Ballon", "Chaise", "Fenêtre", "Miroir", "Pont", "Forêt",
+            "Plage", "Mer", "Ciel", "Nuage", "Étoile", "Lampe", "Horloge", "Téléphone", "Vase", "Tasse",
+            "Couteau", "Fourchette", "Assiette", "Ciseaux", "Bureau", "Casque", "Souris", "Tapis", "Vache", "Chemin"
+        ];
+        let misterWhiteIndex;
+        let word;
+
+        function addPlayer() {
+            const playerName = document.getElementById("playerName").value.trim();
+            if (playerName) {
+                players.push(playerName);
+                let listItem = document.createElement("li");
+                listItem.innerText = playerName;
+                document.getElementById("playerList").appendChild(listItem);
+                document.getElementById("playerName").value = ""; // Clear input field
+                document.getElementById("startGameButton").style.display = "inline"; // Show start button if players added
+            }
+        }
+
+        function startGame() {
+            if (players.length < 2) {
+                alert("Il faut au moins 2 joueurs pour commencer la partie !");
+                return;
+            }
+
+            misterWhiteIndex = Math.floor(Math.random() * players.length); // Choisit un Mister White au hasard
+            let wordIndex = Math.floor(Math.random() * words.length); // Choisit un mot au hasard
+            word = words[wordIndex];
+
+            document.getElementById("playerInputArea").style.display = "none";
+            document.getElementById("gameArea").style.display = "block";
+            document.getElementById("turnInfo").innerText = "Rôles assignés ! Chaque joueur clique sur son bouton pour découvrir son rôle.";
+            document.getElementById("playersArea").innerHTML = ""; // Réinitialise la zone des joueurs
+
+            players.forEach((player, index) => {
+                let playerDiv = document.createElement("div");
+                playerDiv.className = "player";
+                playerDiv.innerHTML = `<strong>${player}</strong> 
+                    <button class="role-button" onclick="revealRole(${index})">Voir ton rôle</button>`;
+                document.getElementById("playersArea").appendChild(playerDiv);
+            });
+        }
+
+        function revealRole(playerIndex) {
+            if (playerIndex === misterWhiteIndex) {
+                alert("Tu es Mister White !");
+            } else {
+                alert(`Mot à deviner : ${word}`);
+            }
+        }
+
+        function resetGame() {
+            players = []; // Réinitialise la liste des joueurs
+            misterWhiteIndex = null;
+            word = null;
+
+            document.getElementById("playerList").innerHTML = ""; // Réinitialise l'affichage des joueurs
+            document.getElementById("playerInputArea").style.display = "block";
+            document.getElementById("gameArea").style.display = "none";
+            document.getElementById("startGameButton").style.display = "none";
+            document.getElementById("turnInfo").innerText = "";
+        }
+
+        function newGame() {
+            shuffleArray(players); // Mélange l'ordre des joueurs
+
+            misterWhiteIndex = Math.floor(Math.random() * players.length); // Choisit un Mister White au hasard
+            let wordIndex = Math.floor(Math.random() * words.length); // Choisit un nouveau mot au hasard
+            word = words[wordIndex];
+
+            document.getElementById("turnInfo").innerText = "Nouvelle partie avec les mêmes joueurs (ordre aléatoire) !";
+            document.getElementById("playersArea").innerHTML = ""; // Réinitialise la zone des joueurs
+
+            players.forEach((player, index) => {
+                let playerDiv = document.createElement("div");
+                playerDiv.className = "player";
+                playerDiv.innerHTML = `<strong>${player}</strong> 
+                    <button class="role-button" onclick="revealRole(${index})">Voir ton rôle</button>`;
+                document.getElementById("playersArea").appendChild(playerDiv);
+            });
+        }
+
+        // Fonction pour mélanger un tableau de manière aléatoire
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+    </script>
+
+</body>
+</html>
